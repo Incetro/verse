@@ -92,6 +92,10 @@ public struct Reducer<State, Action, Environment> {
     /// its state, it can make a difference if `reducerA` chooses to modify `reducerB`'s state
     /// _before_ or _after_ `reducerB` runs.
     ///
+    /// To put it simply it works like `willSet` and `didSet`:
+    /// If you use this `reducerA` before `reducerB` it will work as `didSet` for `reducerB`.
+    /// If you use this `reducerA` after `reducerB` it will work as `willSet` for `reducerB`.
+    ///
     /// This is perhaps most easily seen when working with `optional` reducers, where the parent
     /// domain may listen to the child domain and `nil` out its state. If the parent reducer runs
     /// before the child reducer, then the child reducer will not be able to react to its own action.
@@ -141,6 +145,10 @@ public struct Reducer<State, Action, Environment> {
     /// example, if `reducerA` embeds the domain of `reducerB` and reacts to its actions or modifies
     /// its state, it can make a difference if `reducerA` chooses to modify `reducerB`'s state
     /// _before_ or _after_ `reducerB` runs.
+    ///
+    /// To put it simply it works like `willSet` and `didSet`:
+    /// If you use this `reducerA` before `reducerB` it will work as `didSet` for `reducerB`.
+    /// If you use this `reducerA` after `reducerB` it will work as `willSet` for `reducerB`.
     ///
     /// This is perhaps most easily seen when working with `optional` reducers, where the parent
     /// domain may listen to the child domain and `nil` out its state. If the parent reducer runs
@@ -197,6 +205,10 @@ public struct Reducer<State, Action, Environment> {
     /// example, if `reducerA` embeds the domain of `reducerB` and reacts to its actions or modifies
     /// its state, it can make a difference if `reducerA` chooses to modify `reducerB`'s state
     /// _before_ or _after_ `reducerB` runs.
+    ///
+    /// To put it simply it works like `willSet` and `didSet`:
+    /// If you use this `reducerA` before `reducerB` it will work as `didSet` for `reducerB`.
+    /// If you use this `reducerA` after `reducerB` it will work as `willSet` for `reducerB`.
     ///
     /// This is perhaps most easily seen when working with `optional` reducers, where the parent
     /// domain may listen to the child domain and `nil` out its state. If the parent reducer runs
