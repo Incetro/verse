@@ -1,8 +1,9 @@
 //
-//  File.swift
-//  
+//  Conditional.swift
+//  verse
 //
-//  Created by incetro on 1/17/22.
+//  Created by incetro on 01/01/2021.
+//  Copyright © 2021 Incetro Inc. All rights reserved.
 //
 
 import Foundation

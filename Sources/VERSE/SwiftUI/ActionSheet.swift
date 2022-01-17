@@ -149,6 +149,23 @@ public struct ActionSheetState<Action> {
         self.message = message
         self.title = title
     }
+
+    // MARK: - Initializers
+
+    /// Default initializer
+    /// - Parameters:
+    ///   - title: action sheet title
+    ///   - message: action sheet message
+    ///   - buttons: action sheet buttons
+    public init(
+        title: String,
+        message: String? = nil,
+        buttons: [Button]
+    ) {
+        self.buttons = buttons
+        self.message = message.map(TextState.init)
+        self.title = .init(title)
+    }
 }
 
 // MARK: - CustomDebugOutputConvertible
@@ -192,6 +209,7 @@ extension ActionSheetState: Equatable where Action: Equatable {
 @available(tvOS 13, *)
 @available(watchOS 6, *)
 extension ActionSheetState: Hashable where Action: Hashable {
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(title)
         hasher.combine(message)

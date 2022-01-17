@@ -137,6 +137,21 @@ public struct AlertState<Action> {
         self.primaryButton = dismissButton
     }
 
+    /// Dismissal initializer
+    /// - Parameters:
+    ///   - title: alert title string
+    ///   - message: alert message
+    ///   - dismissButton: the main button in the alert
+    public init(
+        title: String,
+        message: String? = nil,
+        dismissButton: Button? = nil
+    ) {
+        self.title = .init(title)
+        self.message = message.map(TextState.init)
+        self.primaryButton = dismissButton
+    }
+
     /// Two-buttons initializer
     /// - Parameters:
     ///   - title: alert title string
@@ -151,6 +166,24 @@ public struct AlertState<Action> {
     ) {
         self.title = title
         self.message = message
+        self.primaryButton = primaryButton
+        self.secondaryButton = secondaryButton
+    }
+
+    /// Two-buttons initializer
+    /// - Parameters:
+    ///   - title: alert title string
+    ///   - message: alert message string
+    ///   - primaryButton: a main button
+    ///   - secondaryButton: a secondary button
+    public init(
+        title: String,
+        message: String? = nil,
+        primaryButton: Button,
+        secondaryButton: Button
+    ) {
+        self.title = .init(title)
+        self.message = message.map(TextState.init)
         self.primaryButton = primaryButton
         self.secondaryButton = secondaryButton
     }
@@ -180,6 +213,18 @@ public struct AlertState<Action> {
 
         /// Returns `cancel` button instance
         /// - Parameters:
+        ///   - label: button title
+        ///   - action: button action
+        /// - Returns: `cancel` button instance
+        public static func cancel(
+            _ label: String,
+            send action: Action? = nil
+        ) -> Self {
+            Self(action: action, type: .cancel(label: .init(label)))
+        }
+
+        /// Returns `cancel` button instance
+        /// - Parameters:
         ///   - action: button action
         /// - Returns: `cancel` button instance
         public static func cancel(
@@ -200,6 +245,18 @@ public struct AlertState<Action> {
             Self(action: action, type: .default(label: label))
         }
 
+        /// Returns `default` button instance
+        /// - Parameters:
+        ///   - label: button title
+        ///   - action: button action
+        /// - Returns: `default` button instance
+        public static func `default`(
+            _ label: String,
+            send action: Action? = nil
+        ) -> Self {
+            Self(action: action, type: .default(label: .init(label)))
+        }
+
         /// Returns `destructive` button instance
         /// - Parameters:
         ///   - label: button title
@@ -210,6 +267,18 @@ public struct AlertState<Action> {
             send action: Action? = nil
         ) -> Self {
             Self(action: action, type: .destructive(label: label))
+        }
+
+        /// Returns `destructive` button instance
+        /// - Parameters:
+        ///   - label: button title
+        ///   - action: button action
+        /// - Returns: `destructive` button instance
+        public static func destructive(
+            _ label: String,
+            send action: Action? = nil
+        ) -> Self {
+            Self(action: action, type: .destructive(label: .init(label)))
         }
 
         // MARK: - Type
