@@ -181,11 +181,11 @@ public struct IdentifiedArray<ID, Element>: MutableCollection, RandomAccessColle
             """
                 )
             }
-            if newValue![keyPath: self.id] != id {
+            if newValue.unsafelyUnwrapped[keyPath: self.id] != id {
                 fatalError(
                     """
             Can't update element at identifier \(id) with element having mismatched identifier \
-            \(newValue![keyPath: self.id]).
+            \(newValue.unsafelyUnwrapped[keyPath: self.id]).
 
             If you would like to replace the element with identifier \(id) with an element with a \
             new identifier, remove the existing element and then insert the new element, instead.
@@ -242,7 +242,7 @@ public struct IdentifiedArray<ID, Element>: MutableCollection, RandomAccessColle
     public mutating func removeAll(where shouldBeRemoved: (Element) throws -> Bool) rethrows {
         var ids: [ID] = []
         for (index, id) in zip(self.ids.indices, self.ids).reversed() {
-            if try shouldBeRemoved(self.dictionary[id]!) {
+            if try shouldBeRemoved(self.dictionary[id].unsafelyUnwrapped) {
                 self.ids.remove(at: index)
                 ids.append(id)
             }

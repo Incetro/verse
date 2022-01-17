@@ -48,7 +48,7 @@ func debugOutput(_ value: Any, indent: Int = 0) -> String {
         case (_, .optional?):
             return mirror.children.isEmpty
                 ? "nil".indent(by: indent)
-                : debugOutputHelp(mirror.children.first!.value, indent: indent)
+            : debugOutputHelp(mirror.children.first.unsafelyUnwrapped.value, indent: indent)
 
         case (_, .enum?) where !mirror.children.isEmpty:
             let child = mirror.children.first!

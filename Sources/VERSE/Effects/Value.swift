@@ -20,7 +20,7 @@ extension Effect {
     /// - Parameters:
     ///     - value: target value
     /// - Returns: An effect that will be executed after `dueTime`
-    public func value(_ value: Output) -> Effect {
+    public static func value(_ value: Output) -> Effect {
         .init(value: value)
     }
 }
