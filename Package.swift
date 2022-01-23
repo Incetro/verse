@@ -1,4 +1,4 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.5
 
 import PackageDescription
 
@@ -17,17 +17,17 @@ let package = Package(
     )
   ],
   dependencies: [
-    .package(url: "https://github.com/Incetro/combine-schedulers", .branch("master")),
-    .package(url: "https://github.com/Incetro/enum-key-paths", .branch("master")),
-    .package(url: "https://github.com/Incetro/xctest-interface-adapter", .branch("master"))
+    .package(name: "combine-schedulers", url: "https://github.com/Incetro/combine-schedulers", .branch("master")),
+    .package(name: "enum-key-paths", url: "https://github.com/Incetro/enum-key-paths", .branch("master")),
+    .package(name: "xctest-interface-adapter", url: "https://github.com/Incetro/xctest-interface-adapter", .branch("master"))
   ],
   targets: [
     .target(
       name: "VERSE",
       dependencies: [
-        "EnumKeyPaths",
-        "CombineSchedulers",
-        "XCTestInterfaceAdapter",
+        .product(name: "EnumKeyPaths", package: "enum-key-paths"),
+        .product(name: "CombineSchedulers", package: "combine-schedulers"),
+        .product(name: "XCTestInterfaceAdapter", package: "xctest-interface-adapter")
       ]
     ),
     .testTarget(

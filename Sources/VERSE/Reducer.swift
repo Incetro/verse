@@ -1133,6 +1133,76 @@ public struct Reducer<State, Action, Environment> {
         }
     }
 
+    public func pullbackWithShared<SharedState, LocalPrivateState, GlobalPrivateState, GlobalAction, GlobalEnvironment>(
+        state toLocalState: WritableKeyPath<GlobalPrivateState, LocalPrivateState>,
+        action toLocalAction: EnumKeyPath<GlobalAction, Action>,
+        environment toLocalEnvironment: @escaping (GlobalEnvironment) -> Environment
+    ) -> Reducer<CombinedState<SharedState, GlobalPrivateState>, GlobalAction, GlobalEnvironment>
+    where State == CombinedState<SharedState, LocalPrivateState> {
+        .init { globalState, globalAction, globalEnvironment in
+
+            guard let localAction = toLocalAction.extract(from: globalAction) else { return .none }
+            var combinedState = CombinedState(
+                shared: globalState.shared,
+                private: globalState.private[keyPath: toLocalState]
+            )
+            let action = self.run(
+                &combinedState,
+                localAction,
+                toLocalEnvironment(globalEnvironment)
+            ).map(toLocalAction.embed)
+
+            globalState.shared = combinedState.shared
+            globalState.private[keyPath: toLocalState] = combinedState.private
+
+            return action
+        }
+    }
+
+    public func optionalWithShared<SharedState, PrivateState>(
+        breakpointOnNil: Bool = true,
+        file: StaticString = #fileID,
+        line: UInt = #line
+    ) -> Reducer<CombinedState<SharedState, PrivateState?>, Action, Environment>
+    where State == CombinedState<SharedState, PrivateState> {
+        .init { state, action, environment in
+            guard state.private != nil else {
+                if breakpointOnNil {
+                    breakpoint(
+             """
+             ---
+             Warning: Reducer.optional@\(file):\(line)
+
+             "\(debugCaseOutput(action))" was received by an optional reducer when its state was \
+             "nil". This is generally considered an application logic error, and can happen for a \
+             few reasons:
+
+             * The optional reducer was combined with or run from another reducer that set \
+             "\(State.self)" to "nil" before the optional reducer ran. Combine or run optional \
+             reducers before reducers that can set their state to "nil". This ensures that optional \
+             reducers can handle their actions while their state is still non-"nil".
+
+             * An in-flight effect emitted this action while state was "nil". While it may be \
+             perfectly reasonable to ignore this action, you may want to cancel the associated \
+             effect before state is set to "nil", especially if it is a long-living effect.
+
+             * This action was sent to the store while state was "nil". Make sure that actions for \
+             this reducer can only be sent to a view store when state is non-"nil". In SwiftUI \
+             applications, use "IfLetStore".
+             ---
+             """
+                    )
+                }
+                return .none
+            }
+            var nonOptionalState = CombinedState(shared: state.shared, private: state.private!)
+            let result = self.reducer(&nonOptionalState, action, environment)
+            state.shared = nonOptionalState.shared
+            state.private = nonOptionalState.private
+            return result
+        }
+    }
+
     /// Runs the reducer
     ///
     /// - Parameters:
@@ -1148,3 +1218,43 @@ public struct Reducer<State, Action, Environment> {
         self.reducer(&state, action, environment)
     }
 }
+
+extension Reducer {
+
+    public func withContext<Context, PrivateState>(contextHandle: ContextHandle<Context>) -> Reducer<PrivateState, Action, Environment>
+    where State == Merged<Context, PrivateState> {
+        .init { state, action, environment in
+            var mergedState = Merged<Context, PrivateState>(context: contextHandle.context, state: state)
+            let effects = self.run(&mergedState, action, environment)
+            contextHandle.context = mergedState.context
+            state = mergedState.state
+            return effects
+        }
+    }
+}
+
+@dynamicMemberLookup
+public struct Merged<Context, State> {
+    public var context: Context
+    public var state: State
+
+    public subscript<T>(dynamicMember keyPath: WritableKeyPath<State, T>) -> Merged<Context, T> {
+        get { .init(context: self.context, state: self.state[keyPath: keyPath]) }
+        set {
+            self.context = newValue.context
+            self.state[keyPath: keyPath] = newValue.state
+        }
+    }
+
+    public subscript<T>(dynamicMember keyPath: WritableKeyPath<Context, T>) -> T {
+        get { self.context[keyPath: keyPath] }
+        set { self.context[keyPath: keyPath] = newValue }
+    }
+
+    public subscript<T>(dynamicMember keyPath: WritableKeyPath<State, T>) -> T {
+        get { self.state[keyPath: keyPath] }
+        set { self.state[keyPath: keyPath] = newValue }
+    }
+}
+
+extension Merged: Equatable where Context: Equatable, State: Equatable {}
