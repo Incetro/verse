@@ -24,11 +24,11 @@ extension Effect {
     ///     `false`, the publisher emits the first element received during the interval
     /// - Returns: an effect that emits either the most-recent or first element received during the
     ///   specified interval
-    func throttle<S>(
+    public func throttle<S>(
         id: AnyHashable,
         for interval: S.SchedulerTimeType.Stride,
         scheduler: S,
-        latest: Bool
+        latest: Bool = false
     ) -> Effect where S: Scheduler {
         flatMap { value -> AnyPublisher<Output, Failure> in
 
@@ -63,6 +63,23 @@ extension Effect {
         }
         .eraseToEffect()
         .cancellable(id: id, cancelInFlight: true)
+    }
+
+    /// Turns an effect into one that can be sampled
+    ///
+    /// - Parameters:
+    ///   - id: the effect's identifier
+    ///   - interval: the interval at which to find and emit the most recent element, expressed in
+    ///     the time system of the scheduler
+    ///   - scheduler: the scheduler you want to deliver the throttled output to
+    /// - Returns: an effect that emits either the most-recent or first element received during the
+    ///   specified interval
+    public func sample<S>(
+        id: AnyHashable,
+        for interval: S.SchedulerTimeType.Stride,
+        scheduler: S
+    ) -> Effect where S: Scheduler {
+        throttle(id: id, for: interval, scheduler: scheduler, latest: true)
     }
 }
 
