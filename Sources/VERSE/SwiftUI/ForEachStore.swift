@@ -158,7 +158,6 @@ where Data: Collection, ID: Hashable, Content: View {
         content: @escaping (Store<EachState, EachAction>) -> EachContent
     )
     where
-        EachContent: View,
         Data == IdentifiedArray<ID, EachState>,
         Content == WithViewStore<
             [ID], (ID, EachAction), ForEach<[ID], ID, IfLetStore<EachState, EachAction, EachContent?>>
