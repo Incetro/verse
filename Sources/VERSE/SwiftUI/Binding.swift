@@ -390,15 +390,13 @@ extension ViewStore {
 /// And then, we can simplify the settings reducer by allowing the `binding` method to handle these
 /// field mutations for us:
 ///
-///     let settingsReducer = Reducer<
-///         SettingsState, SettingsAction, SettingsEnvironment
-///     > {
+///     let settingsReducer = Reducer<SettingsState, SettingsAction, SettingsEnvironment> {
 ///         switch action {
 ///         case .binding:
 ///             return .none
 ///         }
 ///     }
-///     .binding(action: /SettingsAction.binding)
+///     .binding()
 ///
 /// Binding actions are constructed and sent to the store by providing a writable key path from root
 /// state to the field being mutated. There is even a view store helper that simplifies this work.
@@ -670,4 +668,4 @@ extension Reducer where Action: BindableAction, State == Action.State {
             return self.run(&state, action, environment)
         }
     }
-    }
+}

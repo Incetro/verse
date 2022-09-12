@@ -65,6 +65,29 @@ extension Effect {
         .cancellable(id: id, cancelInFlight: true)
     }
 
+    /// Throttles an effect so that it only publishes one output per given interval.
+    ///
+    /// A convenience for calling ``Effect/throttle(id:for:scheduler:latest:)`` with a static
+    /// type as the effect's unique identifier.
+    ///
+    /// - Parameters:
+    ///   - id: the effect's identifier.
+    ///   - interval: the interval at which to find and emit the most recent element, expressed in
+    ///     the time system of the scheduler.
+    ///   - scheduler: the scheduler you want to deliver the throttled output to.
+    ///   - latest: a boolean value that indicates whether to publish the most recent element. If
+    ///     `false`, the publisher emits the first element received during the interval.
+    /// - Returns: an effect that emits either the most-recent or first element received during the
+    ///   specified interval.
+    public func throttle<S>(
+        id: Any.Type,
+        for interval: S.SchedulerTimeType.Stride,
+        scheduler: S,
+        latest: Bool
+    ) -> Effect where S: Scheduler {
+        throttle(id: ObjectIdentifier(id), for: interval, scheduler: scheduler, latest: latest)
+    }
+
     /// Turns an effect into one that can be sampled
     ///
     /// - Parameters:
@@ -76,6 +99,26 @@ extension Effect {
     ///   specified interval
     public func sample<S>(
         id: AnyHashable,
+        for interval: S.SchedulerTimeType.Stride,
+        scheduler: S
+    ) -> Effect where S: Scheduler {
+        throttle(id: id, for: interval, scheduler: scheduler, latest: true)
+    }
+
+    /// Turns an effect into one that can be sampled
+    ///
+    /// A convenience for calling ``Effect/sample(id:for:scheduler:)`` with a static
+    /// type as the effect's unique identifier.
+    ///
+    /// - Parameters:
+    ///   - id: the effect's identifier
+    ///   - interval: the interval at which to find and emit the most recent element, expressed in
+    ///     the time system of the scheduler
+    ///   - scheduler: the scheduler you want to deliver the throttled output to
+    /// - Returns: an effect that emits either the most-recent or first element received during the
+    ///   specified interval
+    public func sample<S>(
+        id: Any.Type,
         for interval: S.SchedulerTimeType.Stride,
         scheduler: S
     ) -> Effect where S: Scheduler {
