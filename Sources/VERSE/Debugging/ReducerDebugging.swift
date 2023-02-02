@@ -114,8 +114,7 @@ extension Reducer {
             DebugEnvironment()
         }
     ) -> Reducer {
-        #if DEBUG
-        return .init { state, action, environment in
+        Reducer { state, action, environment in
             let previousState = toLocalState(state)
             let effects = self.run(&state, action, environment)
             guard let localAction = toLocalAction.extract(from: action) else { return effects }
@@ -144,9 +143,6 @@ extension Reducer {
                 effects
             )
         }
-        #else
-        return self
-        #endif
     }
 }
 
